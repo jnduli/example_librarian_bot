@@ -21,17 +21,18 @@ class DBWrapper:
 
     @property
     def librarians(self):
-        query = 'SELECT * from librarians'
+        query = 'SELECT name from librarians'
         return self.select_content(query)
 
     @property
     def books(self):
-        query = 'SELECT * from books'
+        query = 'SELECT books.name, librarians.name from books INNER JOIN librarians ON books.librarian=librarians.id'
         return self.select_content(query)
 
     def get_librarian_books(self, librarian):
-        query = 'SELECT * from books WHERE librarian = ?'
-        return self.select_content(query, (librarian,))
+        query = 'SELECT books.name from books INNER JOIN librarians ON books.librarian=librarians.id WHERE librarians.name = ?'
+        books = self.select_content(query, (librarian,))
+        return [book[0] for book in books]
 
     def insert_query(connection, query, params=None):
         cursor = connection.cursor()
@@ -49,4 +50,12 @@ if __name__ == '__main__':
     db.init_db()
     print(db.librarians)
     print(db.books)
-    print(db.get_librarian_books(1))
+    print('Getting librarian books')
+    print(db.get_librarian_books('john'))
+    books = db.get_librarian_books('john')
+    print(','.join(books))
+    reply_keyboard = [['Librarians', 'Books']]
+    print(reply_keyboard)
+    bd = db.librarians
+    sth = [[ b[0] for b in bd]]
+    print(sth)
